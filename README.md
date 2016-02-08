@@ -1,2 +1,4 @@
-# electron-typescript-sample
-Sample for 'Electron + TypeScript App'
+# AbstructSecretary
+npm install
+tsd install
+npm start

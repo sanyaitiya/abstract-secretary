@@ -1,5 +1,5 @@
 import * as electron from 'electron'; 
-import {remote} from 'electron'; 
+import {remote} from 'electron';
 const app = remote.app;
 const BrowserWindow = remote.BrowserWindow;
 const dialog = remote.dialog;

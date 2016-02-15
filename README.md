@@ -1,5 +1,5 @@
 # AbstructSecretary
 npm install  
-tsd install  
-bower install  
+./node_modules/tsd/build/cli.js install  
+./node_modules/bower/bin/bower install  
 npm start

@@ -11,11 +11,14 @@ class Task {
     _taskName: string;
     subTask: Array<Task>;
     _priority: number;
+    _htmlId: number;
+    _completed: boolean;
 
     constructor(taskName: string){
         this.subTask = new Array();
         this._taskName = taskName;
         this._priority = null;
+        this._completed = false;
     }
 
     get priority(): number{
@@ -34,12 +37,31 @@ class Task {
         this._taskName = value;
     }
 
-    draw(list: JQuery){
-		var listItem = $("<li><input type=\"checkbox\">"+this._taskName+"</li>").appendTo(list);
+    draw(list: JQuery, taskId: number): number{
+        this._htmlId = taskId;
+        var checked = "";
+        if(this._completed){
+            checked = "checked=\"checked\"";
+        }
+		var listItem = $("<li><input type=\"checkbox\" id=\"" + this._htmlId + "\" onClick=\"check(this)\" "+ checked +">"+this._taskName+"</li>").appendTo(list);
 		var subList = $("<ul></ul>").appendTo(listItem);
+        var addText = $("<input type=\"text\" name=\"example\">").appendTo(subList);
 //		subList.append("<input type=\"text\" name=\"example\">");
+        var nextId: number = taskId + 1;
         for(var sub in this.subTask){
-			this.subTask[sub].draw(subList);
+			nextId = this.subTask[sub].draw(subList, nextId);
+        }
+        return nextId;
+    }
+
+    check(id: number){
+        if(this._htmlId === id){
+            this._completed = !(this._completed);
+            console.log(this._completed);
+            console.log(this._htmlId);
+        }
+        for(var sub in this.subTask){
+            this.subTask[sub].check(id);
         }
     }
 }
@@ -49,7 +71,12 @@ var rootTaskList: Task = new Task("ProjectName");
 function drawTaskList(){
 	var taskListElement = $("#tasklist");
 	taskListElement.empty();
-	rootTaskList.draw(taskListElement);
+	rootTaskList.draw(taskListElement, 0);
+}
+
+function check(element: HTMLElement){
+    rootTaskList.check(Number(element.id));
+    drawTaskList();
 }
 
 $(function(){

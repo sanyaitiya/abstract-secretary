@@ -43,7 +43,13 @@ class Task {
         if(this._completed){
             checked = "checked=\"checked\"";
         }
-		var listItem = $("<li><input type=\"checkbox\" id=\"" + this._htmlId + "\" onClick=\"check(this)\" "+ checked +">"+this._taskName+"</li>").appendTo(list);
+		var listItem = $("<li></li>").appendTo(list);
+        listItem.append("<input type=\"checkbox\" id=\"" + this._htmlId + "\" onClick=\"check(this)\" "+ checked +">");
+        if(this._completed){
+            listItem.append("<S>" + this._taskName + "</S>");
+        }else{
+            listItem.append(this._taskName);
+        }
 		var subList = $("<ul></ul>").appendTo(listItem);
         var addText = $("<input type=\"text\" name=\"example\">").appendTo(subList);
 //		subList.append("<input type=\"text\" name=\"example\">");

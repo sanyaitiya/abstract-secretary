@@ -13,12 +13,16 @@ class Task {
     _priority: number;
     _htmlId: number;
     _completed: boolean;
+    _addTaskAppear: boolean;
+    _subtaskAppear: boolean;
 
     constructor(taskName: string){
         this.subTask = new Array();
         this._taskName = taskName;
         this._priority = null;
         this._completed = false;
+        this._addTaskAppear = false;
+        this._subtaskAppear = false;
     }
 
     get priority(): number{
@@ -39,23 +43,38 @@ class Task {
 
     draw(list: JQuery, taskId: number): number{
         this._htmlId = taskId;
+
+        // checkbox
         var checked = "";
         if(this._completed){
             checked = "checked=\"checked\"";
         }
 		var listItem = $("<li></li>").appendTo(list);
         listItem.append("<input type=\"checkbox\" id=\"" + this._htmlId + "\" onClick=\"check(this)\" "+ checked +">");
+
+        // task name
         if(this._completed){
             listItem.append("<S>" + this._taskName + "</S>");
         }else{
             listItem.append(this._taskName);
         }
+
+        if(this.subTask.length > 0){
+            listItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\"SubTask\" id=\"" + this._htmlId + "\">");
+        }
+
+        // input textbox
+        listItem.append("<input type=\"button\" onClick=\"toggle(this)\" value=\"AddTask\" id=\"" + this._htmlId + "\">");
 		var subList = $("<ul></ul>").appendTo(listItem);
-        var addText = $("<input type=\"text\" id=\"" + this._htmlId + "\" name=\"example\" onkeypress=\"textKeyPress(event.keyCode, this)\">").appendTo(subList);
+        if(this._addTaskAppear){
+            var addText = $("<input type=\"text\" id=\"" + this._htmlId + "\" name=\"example\" onkeypress=\"textKeyPress(event.keyCode, this)\">").appendTo(subList);
+        }
 //		subList.append("<input type=\"text\" name=\"example\">");
         var nextId: number = taskId + 1;
-        for(var sub in this.subTask){
-			nextId = this.subTask[sub].draw(subList, nextId);
+        if(this._subtaskAppear){
+            for(var sub in this.subTask){
+	               nextId = this.subTask[sub].draw(subList, nextId);
+            }
         }
         return nextId;
     }
@@ -80,6 +99,33 @@ class Task {
         }
 //        this.subTask.push(new Task(taskName));
     }
+    toggleTextBox(id: number){
+        if(this._htmlId === id){
+            this._addTaskAppear = !(this._addTaskAppear);
+        }else{
+            this._addTaskAppear = false;
+        }
+        for(var sub in this.subTask){
+            this.subTask[sub].toggleTextBox(id);
+        }
+    }
+    subTaskExpandAndFold(id: number){
+        if(this._htmlId === id){
+            this._subtaskAppear = !(this._subtaskAppear);
+            if(this._subtaskAppear === false){
+                this.subTaskFold();
+            }
+        }
+        for(var sub in this.subTask){
+            this.subTask[sub].subTaskExpandAndFold(id);
+        }
+    }
+    subTaskFold(){
+        this._subtaskAppear = false;
+        for(var sub in this.subTask){
+            this.subTask[sub].subTaskFold();
+        }
+    }
 }
 
 var rootTaskList: Task = new Task("ProjectName");
@@ -92,6 +138,16 @@ function drawTaskList(){
 
 function check(element: HTMLElement){
     rootTaskList.check(Number(element.id));
+    drawTaskList();
+}
+
+function toggle(element: HTMLElement){
+    rootTaskList.toggleTextBox(Number(element.id));
+    drawTaskList();
+}
+
+function subTaskExpand(element: HTMLElement){
+    rootTaskList.subTaskExpandAndFold(Number(element.id));
     drawTaskList();
 }
 

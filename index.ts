@@ -1,10 +1,6 @@
 /// <reference path="typings/tsd.d.ts"/>
 
-var remote = require('remote');
-var app = remote.require('app');
-var BrowserWindow = remote.require('browser-window');
-var dialog = remote.require('dialog');
-
+import * as electron from 'electron';
 var jquery :JQuery = $("#layout");
 
 class Task {
@@ -16,13 +12,30 @@ class Task {
     _addTaskAppear: boolean;
     _subtaskAppear: boolean;
 
-    constructor(taskName: string){
+    constructor(taskName: string);
+
+    constructor(input: any){
         this.subTask = new Array();
-        this._taskName = taskName;
         this._priority = null;
         this._completed = false;
         this._addTaskAppear = false;
         this._subtaskAppear = false;
+
+        if (input instanceof Object) {
+            for (var propName in input){
+
+                if (propName === "subTask") {
+                    var subTask = input[propName];
+                    for (var index in subTask){
+                        this.subTask.push(new Task(subTask[index]));
+                    }
+                } else {
+                    this[propName] = input[propName];
+                }
+            }
+        } else {
+            this._taskName = input;
+        }
     }
 
     get priority(): number{
@@ -52,6 +65,19 @@ class Task {
 		var listItem = $("<li></li>").appendTo(list);
         listItem.append("<input type=\"checkbox\" id=\"" + this._htmlId + "\" onClick=\"check(this)\" "+ checked +">");
 
+        if(this.subTask.length > 0){
+            if ( this._subtaskAppear){
+                listItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\"↓\" id=\"" + this._htmlId + "\">");
+            } else {
+                listItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\">\" id=\"" + this._htmlId + "\">");
+            }
+        } else {
+            listItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\"□\" id=\"" + this._htmlId + "\">");
+        }
+
+        // input textbox
+        listItem.append("<input type=\"button\" onClick=\"toggle(this)\" value=\"+\" id=\"" + this._htmlId + "\">");
+
         // task name
         if(this._completed){
             listItem.append("<S>" + this._taskName + "</S>");
@@ -59,12 +85,6 @@ class Task {
             listItem.append(this._taskName);
         }
 
-        if(this.subTask.length > 0){
-            listItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\"SubTask\" id=\"" + this._htmlId + "\">");
-        }
-
-        // input textbox
-        listItem.append("<input type=\"button\" onClick=\"toggle(this)\" value=\"AddTask\" id=\"" + this._htmlId + "\">");
 		var subList = $("<ul></ul>").appendTo(listItem);
         if(this._addTaskAppear){
             var addText = $("<input type=\"text\" id=\"" + this._htmlId + "\" name=\"example\" onkeypress=\"textKeyPress(event.keyCode, this)\">").appendTo(subList);
@@ -82,8 +102,6 @@ class Task {
     check(id: number){
         if(this._htmlId === id){
             this._completed = !(this._completed);
-            console.log(this._completed);
-            console.log(this._htmlId);
         }
         for(var sub in this.subTask){
             this.subTask[sub].check(id);
@@ -128,7 +146,7 @@ class Task {
     }
 }
 
-var rootTaskList: Task = new Task("ProjectName");
+var rootTaskList: Task = null;
 
 function drawTaskList(){
 	var taskListElement = $("#tasklist");
@@ -158,9 +176,22 @@ function textKeyPress(code: number, element: HTMLInputElement){
     }
 }
 
+import fs = require('fs');
+var remote = electron.remote;
+var dialog = remote.dialog;
+var app = remote.app;
+app.on('window-all-closed', function(){
+    fs.appendFile('./test.txt', 'add');
+});
+
+var browserWindow = remote.BrowserWindow;
 $(function(){
-	rootTaskList.subTask.push(new Task("task1"));
-	rootTaskList.subTask[0].subTask.push(new Task("subtask1"));
-	rootTaskList.subTask[0].subTask[0].subTask.push(new Task("subsubtask1"));
-    drawTaskList();
+    fs.readFile('./test.txt', 'utf8', function(err, text){
+        rootTaskList = new Task(JSON.parse(text));
+        drawTaskList();
+    });
+
+    remote.getCurrentWindow().on('close', function(){
+        fs.writeFile('./test.txt', JSON.stringify(rootTaskList));
+    });
 });

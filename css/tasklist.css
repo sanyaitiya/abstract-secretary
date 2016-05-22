@@ -33,7 +33,7 @@
   -webkit-transition: border-color 0.2s linear;
   transition: border-color 0.2s linear;
   position: static;
-  top: 50%;
+  vertical-align: middle;
   left: 15px;
   display: inline-block;
   width: 16px;
@@ -48,7 +48,7 @@
   -webkit-transition: border-color 0.2s linear;
   transition: border-color 0.2s linear;
   position: static;
-  top: 50%;
+  vertical-align: middle;
   left: 15px;
   display: inline-block;
   width: 16px;

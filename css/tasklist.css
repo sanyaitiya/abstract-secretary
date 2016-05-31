@@ -1,0 +1,100 @@
+.list-menu {
+    list-style: none;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.list-menu div {
+    list-style: none;
+    overflow: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #879c18;
+}
+
+.list-menu .task-label {
+    display: block;
+    position: relative;
+    z-index: 10;
+    height: 42px;
+    margin: 0;
+    padding: 0px 0px 0px 10px;
+    background: #a1b91d;
+    color: #fff;
+    font-size: 14px;
+    line-height: 42px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.list-menu .task-label-check {
+    background: #999;
+}
+
+.checkbox-uncheck {
+  -webkit-transition: border-color 0.2s linear;
+  transition: border-color 0.2s linear;
+  position: static;
+  vertical-align: middle;
+  left: 15px;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  content: '';
+}
+
+
+.checkbox-check {
+  -webkit-transition: border-color 0.2s linear;
+  transition: border-color 0.2s linear;
+  position: static;
+  vertical-align: middle;
+  left: 15px;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ddd;
+  background: #ddd;
+  border-radius: 6px;
+  content: '';
+}
+
+
+
+.rist-menu li a:hover {
+    background: #879c18;
+}
+
+#tasklist li a:before {
+	display: block;
+	content: "";
+	position: absolute;
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+	top: 50%;
+	left: 20px;
+	width: 8px;
+	height: 8px;
+	margin-top: -4px;
+	background: #fff;
+}
+#tasklist li a:after {
+	display: block;
+	content: "";
+	position: absolute;
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+	top: 50%;
+	left: 15px;
+	width: 8px;
+	height: 8px;
+	margin-top: -4px;
+	background: #a1b91d;
+}
+#list li a:hover:after {
+	background: #879c18;
+}

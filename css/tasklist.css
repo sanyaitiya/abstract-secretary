@@ -29,6 +29,10 @@
     text-decoration: none;
 }
 
+.list-menu .task-label-check {
+    background: #999;
+}
+
 .checkbox-uncheck {
   -webkit-transition: border-color 0.2s linear;
   transition: border-color 0.2s linear;

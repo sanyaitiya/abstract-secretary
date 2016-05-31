@@ -63,7 +63,11 @@ class Task {
             checked = "checked=\"checked\"";
         }
 		var listItem = $("<li></li>").appendTo(list);
-        var taskItem = $("<div class=\"task-label\"></div>").appendTo(listItem);
+        if(this._completed){
+            var taskItem = $("<div class=\"task-label task-label-check\"></div>").appendTo(listItem);
+        }else{
+            var taskItem = $("<div class=\"task-label\"></div>").appendTo(listItem);
+        }
         if(this._completed){
             taskItem.append("<span class=\"checkbox-check\" onClick=\"check(this)\" id=\"" + this._htmlId + "\"></span>");
         }else{

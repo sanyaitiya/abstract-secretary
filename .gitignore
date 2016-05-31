@@ -36,3 +36,5 @@ dist
 # Middle Product
 *.js
 *.js.map
+
+test.txt

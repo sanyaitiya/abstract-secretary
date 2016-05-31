@@ -63,26 +63,34 @@ class Task {
             checked = "checked=\"checked\"";
         }
 		var listItem = $("<li></li>").appendTo(list);
-        listItem.append("<input type=\"checkbox\" id=\"" + this._htmlId + "\" onClick=\"check(this)\" "+ checked +">");
-
+        if(this._completed){
+            var taskItem = $("<div class=\"task-label task-label-check\"></div>").appendTo(listItem);
+        }else{
+            var taskItem = $("<div class=\"task-label\"></div>").appendTo(listItem);
+        }
+        if(this._completed){
+            taskItem.append("<span class=\"checkbox-check\" onClick=\"check(this)\" id=\"" + this._htmlId + "\"></span>");
+        }else{
+            taskItem.append("<span class=\"checkbox-uncheck\" onClick=\"check(this)\" id=\"" + this._htmlId + "\"></span>");
+        }
         if(this.subTask.length > 0){
             if ( this._subtaskAppear){
-                listItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\"↓\" id=\"" + this._htmlId + "\">");
+                taskItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\"↓\" id=\"" + this._htmlId + "\">");
             } else {
-                listItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\">\" id=\"" + this._htmlId + "\">");
+                taskItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\">\" id=\"" + this._htmlId + "\">");
             }
         } else {
-            listItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\"□\" id=\"" + this._htmlId + "\">");
+            taskItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\"□\" id=\"" + this._htmlId + "\">");
         }
 
         // input textbox
-        listItem.append("<input type=\"button\" onClick=\"toggle(this)\" value=\"+\" id=\"" + this._htmlId + "\">");
+        taskItem.append("<input type=\"button\" onClick=\"toggle(this)\" value=\"+\" id=\"" + this._htmlId + "\">");
 
         // task name
         if(this._completed){
-            listItem.append("<S>" + this._taskName + "</S>");
+            taskItem.append("<span><S>" + this._taskName + "</S></span>");
         }else{
-            listItem.append(this._taskName);
+            taskItem.append("<span>" + this._taskName + "</span>");
         }
 
 		var subList = $("<ul></ul>").appendTo(listItem);

@@ -189,7 +189,7 @@ var remote = electron.remote;
 var dialog = remote.dialog;
 var app = remote.app;
 app.on('window-all-closed', function(){
-    fs.appendFile('./test.txt', 'add');
+
 });
 
 var browserWindow = remote.BrowserWindow;

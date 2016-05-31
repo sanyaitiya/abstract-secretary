@@ -38,3 +38,4 @@ dist
 *.js.map
 
 test.txt
+secretary-win32-x64/

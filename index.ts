@@ -200,6 +200,6 @@ $(function(){
     });
 
     remote.getCurrentWindow().on('close', function(){
-        fs.writeFile('./test.txt', JSON.stringify(rootTaskList));
+        //fs.writeFile('./test.txt', JSON.stringify(rootTaskList));
     });
 });

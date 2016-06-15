@@ -154,32 +154,41 @@ class Task {
     }
 }
 
-var rootTaskList: Task = null;
+var rootTaskLists: Array<Task> = null;
+var projectIndex: number = 1;
+
+function drawProjectList(){
+    var projectListElement = $("#project-list");
+    projectListElement.empty();
+    for(var data in rootTaskLists){
+        projectListElement.append("<li class=\"pure-menu-item\"><a href=\"#\" class=\"pure-menu-link\">Example1</a></li>");
+    }
+}
 
 function drawTaskList(){
 	var taskListElement = $("#tasklist");
 	taskListElement.empty();
-	rootTaskList.draw(taskListElement, 0);
+	rootTaskLists[projectIndex].draw(taskListElement, 0);
 }
 
 function check(element: HTMLElement){
-    rootTaskList.check(Number(element.id));
+    rootTaskLists[projectIndex].check(Number(element.id));
     drawTaskList();
 }
 
 function toggle(element: HTMLElement){
-    rootTaskList.toggleTextBox(Number(element.id));
+    rootTaskLists[projectIndex].toggleTextBox(Number(element.id));
     drawTaskList();
 }
 
 function subTaskExpand(element: HTMLElement){
-    rootTaskList.subTaskExpandAndFold(Number(element.id));
+    rootTaskLists[projectIndex].subTaskExpandAndFold(Number(element.id));
     drawTaskList();
 }
 
 function textKeyPress(code: number, element: HTMLInputElement){
     if(code == 13){
-        rootTaskList.addTask(Number(element.id), element.value);
+        rootTaskLists[projectIndex].addTask(Number(element.id), element.value);
         drawTaskList();
     }
 }
@@ -195,7 +204,13 @@ app.on('window-all-closed', function(){
 var browserWindow = remote.BrowserWindow;
 $(function(){
     fs.readFile('./test.txt', 'utf8', function(err, text){
-        rootTaskList = new Task(JSON.parse(text));
+        rootTaskLists = new Array;
+        var projects = JSON.parse(text).data;
+        for(var project in projects){
+            console.log(project);
+            rootTaskLists.push(new Task(projects[project]));
+        }
+        drawProjectList();
         drawTaskList();
     });
 

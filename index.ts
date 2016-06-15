@@ -160,8 +160,8 @@ var projectIndex: number = 1;
 function drawProjectList(){
     var projectListElement = $("#project-list");
     projectListElement.empty();
-    for(var data in rootTaskLists){
-        projectListElement.append("<li class=\"pure-menu-item\"><a href=\"#\" class=\"pure-menu-link\">Example1</a></li>");
+    for(var project in rootTaskLists){
+        projectListElement.append("<li class=\"pure-menu-item\"><a href=\"#\" class=\"pure-menu-link\">" + rootTaskLists[project].taskName + "</a></li>");
     }
 }
 

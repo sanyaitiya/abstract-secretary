@@ -161,8 +161,13 @@ function drawProjectList(){
     var projectListElement = $("#project-list");
     projectListElement.empty();
     for(var project in rootTaskLists){
-        projectListElement.append("<li class=\"pure-menu-item\"><a href=\"#\" class=\"pure-menu-link\">" + rootTaskLists[project].taskName + "</a></li>");
+        projectListElement.append("<li class=\"pure-menu-item\"><a href=\"#\" class=\"pure-menu-link\" onClick=\"changeProject(this)\" id=" + project + ">" + rootTaskLists[project].taskName + "</a></li>");
     }
+}
+
+function changeProject(element: HTMLElement){
+    projectIndex = Number(element.id);
+    drawTaskList();
 }
 
 function drawTaskList(){
@@ -205,7 +210,7 @@ var browserWindow = remote.BrowserWindow;
 $(function(){
     fs.readFile('./test.txt', 'utf8', function(err, text){
         rootTaskLists = new Array;
-        var projects = JSON.parse(text).data;
+        var projects = JSON.parse(text);
         for(var project in projects){
             console.log(project);
             rootTaskLists.push(new Task(projects[project]));
@@ -215,6 +220,6 @@ $(function(){
     });
 
     remote.getCurrentWindow().on('close', function(){
-        //fs.writeFile('./test.txt', JSON.stringify(rootTaskList));
+        fs.writeFile('./test.txt', JSON.stringify(rootTaskLists));
     });
 });

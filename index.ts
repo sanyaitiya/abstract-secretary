@@ -198,6 +198,10 @@ function textKeyPress(code: number, element: HTMLInputElement){
     }
 }
 
+function addProjectList(projectName: string){
+    rootTaskLists.push(new Task(projectName));
+}
+
 import fs = require('fs');
 var remote = electron.remote;
 var dialog = remote.dialog;
@@ -213,13 +217,10 @@ $(function(){
         if(err === null){
             var projects = JSON.parse(text);
             for(var project in projects){
-                console.log(project);
                 rootTaskLists.push(new Task(projects[project]));
             }
-            console.log(rootTaskLists.length)
         } else {
-            console.log("test");
-            rootTaskLists.push(new Task("BlankProject"));
+            addProjectList("BlankProject");
         }
         drawProjectList();
         drawTaskList();

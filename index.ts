@@ -155,7 +155,7 @@ class Task {
 }
 
 var rootTaskLists: Array<Task> = null;
-var projectIndex: number = 1;
+var projectIndex: number = 0;
 
 function drawProjectList(){
     var projectListElement = $("#project-list");
@@ -210,10 +210,16 @@ var browserWindow = remote.BrowserWindow;
 $(function(){
     fs.readFile('./test.txt', 'utf8', function(err, text){
         rootTaskLists = new Array;
-        var projects = JSON.parse(text);
-        for(var project in projects){
-            console.log(project);
-            rootTaskLists.push(new Task(projects[project]));
+        if(err === null){
+            var projects = JSON.parse(text);
+            for(var project in projects){
+                console.log(project);
+                rootTaskLists.push(new Task(projects[project]));
+            }
+            console.log(rootTaskLists.length)
+        } else {
+            console.log("test");
+            rootTaskLists.push(new Task("BlankProject"));
         }
         drawProjectList();
         drawTaskList();

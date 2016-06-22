@@ -163,6 +163,7 @@ function drawProjectList(){
     for(var project in rootTaskLists){
         projectListElement.append("<li class=\"pure-menu-item\"><a href=\"#\" class=\"pure-menu-link\" onClick=\"changeProject(this)\" id=" + project + ">" + rootTaskLists[project].taskName + "</a></li>");
     }
+    var addText = $("<input type=\"text\" id=\"project_adder\" name=\"example\" onkeypress=\"textKeyPress(event.keyCode, this)\">").appendTo(projectListElement);
 }
 
 function changeProject(element: HTMLElement){
@@ -173,7 +174,9 @@ function changeProject(element: HTMLElement){
 function drawTaskList(){
 	var taskListElement = $("#tasklist");
 	taskListElement.empty();
-	rootTaskLists[projectIndex].draw(taskListElement, 0);
+    if(rootTaskLists.length !== 0){
+	   rootTaskLists[projectIndex].draw(taskListElement, 0);
+   }
 }
 
 function check(element: HTMLElement){
@@ -193,8 +196,14 @@ function subTaskExpand(element: HTMLElement){
 
 function textKeyPress(code: number, element: HTMLInputElement){
     if(code == 13){
-        rootTaskLists[projectIndex].addTask(Number(element.id), element.value);
-        drawTaskList();
+        console.log(element.id);
+        if(element.id === "project_adder"){
+            addProjectList(element.value);
+            drawProjectList();
+        } else {
+            rootTaskLists[projectIndex].addTask(Number(element.id), element.value);
+            drawTaskList();
+        }
     }
 }
 
@@ -214,13 +223,12 @@ var browserWindow = remote.BrowserWindow;
 $(function(){
     fs.readFile('./test.txt', 'utf8', function(err, text){
         rootTaskLists = new Array;
+
         if(err === null){
-            var projects = JSON.parse(text);
+        var projects = JSON.parse(text);
             for(var project in projects){
                 rootTaskLists.push(new Task(projects[project]));
             }
-        } else {
-            addProjectList("BlankProject");
         }
         drawProjectList();
         drawTaskList();

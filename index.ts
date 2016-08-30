@@ -11,6 +11,7 @@ class Task {
     _completed: boolean;
     _addTaskAppear: boolean;
     _subtaskAppear: boolean;
+    _editTaskAppear: boolean;
 
     constructor(taskName: string);
 
@@ -20,6 +21,7 @@ class Task {
         this._completed = false;
         this._addTaskAppear = false;
         this._subtaskAppear = false;
+        this._editTaskAppear = false;
 
         if (input instanceof Object) {
             for (var propName in input){
@@ -73,6 +75,9 @@ class Task {
         }else{
             taskItem.append("<span class=\"checkbox-uncheck\" onClick=\"check(this)\" id=\"" + this._htmlId + "\"></span>");
         }
+
+        taskItem.append("<input type=\"button\" onClick=\"deleteTask(this)\" value=\"×\" id=\"" + this._htmlId + "\">");
+
         if(this.subTask.length > 0){
             if ( this._subtaskAppear){
                 taskItem.append("<input type=\"button\" onClick=\"subTaskExpand(this)\" value=\"↓\" id=\"" + this._htmlId + "\">");
@@ -85,19 +90,23 @@ class Task {
 
         // input textbox
         taskItem.append("<input type=\"button\" onClick=\"toggle(this)\" value=\"+\" id=\"" + this._htmlId + "\">");
+        taskItem.append("<input type=\"button\" onClick=\"toggle(this)\" value=\"+\" id=\"edit" + this._htmlId + "\">");
 
         // task name
         if(this._completed){
-            taskItem.append("<span><S>" + this._taskName + "</S></span>");
+            var taskName = taskItem.append("<span><S>" + this._taskName + "</S></span>");
         }else{
-            taskItem.append("<span>" + this._taskName + "</span>");
+            var taskName = taskItem.append("<span>" + this._taskName + "</span>");
         }
 
 		var subList = $("<ul></ul>").appendTo(listItem);
         if(this._addTaskAppear){
-            var addText = $("<input type=\"text\" id=\"" + this._htmlId + "\" name=\"example\" onkeypress=\"textKeyPress(event.keyCode, this)\">").appendTo(subList);
+            var addText = $("<input type=\"text\" id=\"addtask" + this._htmlId + "\" name=\"example\" onkeypress=\"textKeyPress(event.keyCode, this)\">").appendTo(subList);
         }
-//		subList.append("<input type=\"text\" name=\"example\">");
+        if(this._editTaskAppear){
+            var editText = $("<span>E</span><input type=\"text\" id=\"edittask" + this._htmlId + "\" name=\"example\" onkeypress=\"textKeyPress(event.keyCode, this)\">").appendTo(subList);
+        }
+
         var nextId: number = taskId + 1;
         if(this._subtaskAppear){
             for(var sub in this.subTask){
@@ -118,14 +127,37 @@ class Task {
 
     addTask(id: number, taskName: string){
         if(this._htmlId === id){
+
+            this._subtaskAppear = true;
             this.subTask.push(new Task(taskName));
         }
         for(var sub in this.subTask){
             this.subTask[sub].addTask(id, taskName);
         }
-//        this.subTask.push(new Task(taskName));
     }
+
+    renameTask(id: number, taskName: string){
+        if(this._htmlId === id){
+            this._taskName = taskName;
+        }
+        for(var sub in this.subTask){
+            this.subTask[sub].renameTask(id, taskName);
+        }
+    }
+
+    deleteTask(id: number){
+        for(var sub in this.subTask){
+            if(this.subTask[sub]._htmlId === id){
+                this.subTask.splice(Number(sub), 1);
+                break;
+            }else{
+                this.subTask[sub].deleteTask(id);
+            }
+        }
+    }
+
     toggleTextBox(id: number){
+        this._editTaskAppear = false;
         if(this._htmlId === id){
             this._addTaskAppear = !(this._addTaskAppear);
         }else{
@@ -135,6 +167,19 @@ class Task {
             this.subTask[sub].toggleTextBox(id);
         }
     }
+
+    toggleEditBox(id: number){
+        this._addTaskAppear = false;
+        if(this._htmlId === id){
+            this._editTaskAppear = !(this._editTaskAppear);
+        }else{
+            this._editTaskAppear = false;
+        }
+        for(var sub in this.subTask){
+            this.subTask[sub].toggleEditBox(id);
+        }
+    }
+
     subTaskExpandAndFold(id: number){
         if(this._htmlId === id){
             this._subtaskAppear = !(this._subtaskAppear);
@@ -161,13 +206,27 @@ function drawProjectList(){
     var projectListElement = $("#project-list");
     projectListElement.empty();
     for(var project in rootTaskLists){
-        projectListElement.append("<li class=\"pure-menu-item\"><a href=\"#\" class=\"pure-menu-link\" onClick=\"changeProject(this)\" id=" + project + ">" + rootTaskLists[project].taskName + "</a></li>");
+        projectListElement.append("<li class=\"pure-menu-item\"><a href=\"#\" class=\"pure-menu-link\" onClick=\"changeProject(this)\" id=pr" + project + "><input type=\"button\" onClick=\"deleteProject(this)\" value=\"×\" id=\"pr" + project + "\">" + rootTaskLists[project].taskName + "</a></li>");
     }
     var addText = $("<input type=\"text\" id=\"project_adder\" name=\"example\" onkeypress=\"textKeyPress(event.keyCode, this)\">").appendTo(projectListElement);
+    projectListElement.sortable({
+        update: function(e, ui) {
+            var children = projectListElement.children('.pure-menu-item');
+            var indexArray: Array<number> = new Array();
+            var newTaskList: Array<Task> = new Array();
+            for(var i = 0; i < children.length; i++){
+                newTaskList.push(rootTaskLists[Number(children[i].children[0].id.replace('pr', ""))]);
+            }
+            rootTaskLists = newTaskList;
+            drawProjectList();
+
+        }
+    });
+    projectListElement.disableSelection();
 }
 
 function changeProject(element: HTMLElement){
-    projectIndex = Number(element.id);
+    projectIndex = Number(element.id.replace("pr", ""));
     drawTaskList();
 }
 
@@ -175,8 +234,10 @@ function drawTaskList(){
 	var taskListElement = $("#tasklist");
 	taskListElement.empty();
     if(rootTaskLists.length !== 0){
-	   rootTaskLists[projectIndex].draw(taskListElement, 0);
-   }
+        if(rootTaskLists.length - 1 >= projectIndex){
+            rootTaskLists[projectIndex].draw(taskListElement, 0);
+        }
+    }
 }
 
 function check(element: HTMLElement){
@@ -185,8 +246,13 @@ function check(element: HTMLElement){
 }
 
 function toggle(element: HTMLElement){
-    rootTaskLists[projectIndex].toggleTextBox(Number(element.id));
-    drawTaskList();
+    if(element.id.match(/edit/)){
+        rootTaskLists[projectIndex].toggleEditBox(Number(element.id.replace("edit", "")));
+        drawTaskList();
+    } else {
+        rootTaskLists[projectIndex].toggleTextBox(Number(element.id));
+        drawTaskList();
+    }
 }
 
 function subTaskExpand(element: HTMLElement){
@@ -196,19 +262,42 @@ function subTaskExpand(element: HTMLElement){
 
 function textKeyPress(code: number, element: HTMLInputElement){
     if(code == 13){
-        console.log(element.id);
         if(element.id === "project_adder"){
-            addProjectList(element.value);
+            addProject(element.value);
+            drawProjectList();
+        } else if(element.id.match(/edittask/)){
+            rootTaskLists[projectIndex].renameTask(Number(element.id.replace("edittask", "")), element.value);
+            drawTaskList();
             drawProjectList();
         } else {
-            rootTaskLists[projectIndex].addTask(Number(element.id), element.value);
+            rootTaskLists[projectIndex].addTask(Number(element.id.replace("addtask", "")), element.value);
             drawTaskList();
         }
+        $("#" + element.id).focus();
     }
 }
 
-function addProjectList(projectName: string){
+function deleteTask(element: HTMLInputElement){
+    rootTaskLists[projectIndex].deleteTask(Number(element.id));
+    drawTaskList();
+}
+
+function addProject(projectName: string){
     rootTaskLists.push(new Task(projectName));
+}
+
+function deleteProject(element: HTMLElement){
+    var taskNumber = Number(element.id.replace("pr", ""));
+    var result = confirm("\"" + rootTaskLists[taskNumber]._taskName + "\"を消去しますか？");
+    if(result){
+        rootTaskLists.splice(taskNumber, 1);
+    }
+    drawProjectList();
+    drawTaskList();
+}
+
+function editProject(element: HTMLElement){
+
 }
 
 import fs = require('fs');
